@@ -1,3 +1,5 @@
+from heapq import heappush, heappop
+
 class PantsState:
 
     def __init__(self, pointer, state):
@@ -82,37 +84,88 @@ class PantsPath:
         else:
             return False
 
+    def __lt__(self, other):
+        # TODO:  Explain this!
+        return len(self.states) < len(other.states)
+
 class PantsSolver:
 
-    def __init__(self, initial, goal):
-        self.working_set = [PantsPath([PantsState(0, initial)])]
+    def __init__(self, initial, goal, heuristic):
+        self.working_set = []
         self.goal = goal
+        self.heuristic = heuristic
+
+        self.add_path(PantsPath([PantsState(0, initial)]))
+
+    def add_path(self, path):
+        heappush(self.working_set, (self.heuristic.score(path), path))
 
     def solve(self):
         evaluated = 0
         while len(self.working_set) > 0:
-            best = self.working_set.pop(0)
+            score, best = heappop(self.working_set)
             evaluated += 1
 
             # TODO:  Should this be a method?
             if best.last_state.state == self.goal:
-                print('Solved!')
-                print('Nodes evaluated:  {}'.format(evaluated))
-                print('Moves:  {}'.format(len(best.states) - 1))
-                print(str(best))
-
-                return
+                return (best, evaluated)
             else:
-                self.working_set += list(best.children)
+                for child in best.children:
+                    self.add_path(child)
+
+
+class BreadthFirstHeuristic:
+
+    def score(self, pants_path):
+        return len(pants_path.states)
+
+
+class DistanceHeuristic:
+
+    def __init__(self, goal):
+        self.goal = goal
+
+    def score(self, pants_path):
+        state = pants_path.last_state.state
+        goal_distance = sum([abs(g - s) for g,s in zip(self.goal, state)])
+
+        return goal_distance
+
+
+def display(path, evaluated):
+    print('Solved!')
+    print('Nodes evaluated:  {}'.format(evaluated))
+    print('Moves:  {}'.format(len(path.states) - 1))
+    print(str(path))
 
 
 def run():
-    solver = PantsSolver(
-        initial=[1, 2, 3, 4, 5],
-        goal=[5, 4, 3, 2, 1]
+    initial = [1, 2, 3, 4, 5]
+    goal = [5, 4, 3, 2, 1]
+
+    solver = PantsSolver(initial, goal,
+        heuristic=BreadthFirstHeuristic()
     )
 
-    solver.solve()
+    print('------ Breadth First -----------------')
+    display(*solver.solve())
+
+    solver = PantsSolver(initial, goal,
+        heuristic=DistanceHeuristic(goal)
+    )
+
+    print('------ Distance Search -----------------')
+    display(*solver.solve())
+
+    initial = [1, 2, 3, 4, 5, 6, 7]
+    goal = [7, 6, 5, 4, 3, 2, 1]
+
+    solver = PantsSolver(initial, goal,
+        heuristic=DistanceHeuristic(goal)
+    )
+
+    print('------ Big Distance Search -----------------')
+    display(*solver.solve())
 
 if __name__ == '__main__':
     run()
