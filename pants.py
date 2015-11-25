@@ -34,10 +34,6 @@ class PantsState:
         else:
             return None
 
-    @property
-    def is_solved(self):
-        return self.state == list(reversed(sorted(self.state)))
-
     def __str__(self):
         elements = [str(v) if i != self.pointer else '*{}'.format(v) for i,v in enumerate(self.state)]
         return '[{}]'.format(' '.join(elements))
