@@ -1,4 +1,3 @@
-
 class PantsState:
 
     def __init__(self, pointer, state):
@@ -53,63 +52,67 @@ class PantsPath:
     def __init__(self, states):
         self.states = states
 
-    def next_states(self):
-        last_state = self.states[-1]
-
-        next_states = [
-            last_state.move_pointer_right(),
-            last_state.move_pointer_left(),
-            last_state.swap_right(),
-            last_state.swap_left()
-        ]
-
-        # TODO:  Optimize this - this is a linear check in the history
-        return [s for s in next_states if s is not None and s not in self.states]
-
-    def generate_children(self):
-        children = []
-        for state in self.next_states():
-            new_states = self.states[:]
-            new_states.append(state)
-
-            children.append(PantsPath(new_states))
-
-        return children
+    @property
+    def last_state(self):
+        return self.states[-1]
 
     @property
-    def is_solved(self):
-        return self.states[-1].is_solved
+    def children(self):
+        state_transitions = [
+            self.last_state.move_pointer_left,
+            self.last_state.move_pointer_right,
+            self.last_state.swap_left,
+            self.last_state.swap_right
+        ]
+
+        for transition in state_transitions:
+            next_state = transition()
+
+            # Only if the next state is a valid move AND we have not been in
+            # this position before, make a new path with the transition
+            if next_state is not None and next_state not in self.states:
+                yield PantsPath(self.states + [next_state])
 
     def __str__(self):
-        return ' -> '.join([str(state) for state in self.states])
+        return '\n'.join([str(state) for state in self.states])
 
     def __eq__(self, other):
-        return self.states == other.states
+        if isinstance(other, PantsPath):
+            return self.states == other.states
+        else:
+            return False
+
+class PantsSolver:
+
+    def __init__(self, initial, goal):
+        self.working_set = [PantsPath([PantsState(0, initial)])]
+        self.goal = goal
+
+    def solve(self):
+        evaluated = 0
+        while len(self.working_set) > 0:
+            best = self.working_set.pop(0)
+            evaluated += 1
+
+            # TODO:  Should this be a method?
+            if best.last_state.state == self.goal:
+                print('Solved!')
+                print('Nodes evaluated:  {}'.format(evaluated))
+                print('Moves:  {}'.format(len(best.states) - 1))
+                print(str(best))
+
+                return
+            else:
+                self.working_set += list(best.children)
 
 
 def run():
-    initial_state = PantsState(0, [1, 2, 3, 4, 5])
+    solver = PantsSolver(
+        initial=[1, 2, 3, 4, 5],
+        goal=[5, 4, 3, 2, 1]
+    )
 
-    layer = [PantsPath([initial_state])]
-
-    while len(layer) > 0:
-        # Loop over the tree one layer at a time - this could be improved!
-        for path in layer:
-            if path.is_solved:
-                print('Solved!')
-                print('Moves:  {}'.format(len(path.states) - 1))
-                print(str(path))
-
-                return
-
-        next_layer = []
-        for path in layer:
-            next_layer.extend(path.generate_children())
-
-        layer = next_layer
-
-    print('No solution found...')
-
+    solver.solve()
 
 if __name__ == '__main__':
     run()
