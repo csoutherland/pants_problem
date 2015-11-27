@@ -1,5 +1,7 @@
+import argparse
+
 from pants.solver import PantsSolver
-from pants.heuristics import BreadthFirstHeuristic, DistanceHeuristic
+from pants import heuristics
 
 
 def display(solver):
@@ -14,43 +16,34 @@ def display(solver):
 
 
 def run():
-    initial = [1, 2, 3, 4, 5]
-    goal = [5, 4, 3, 2, 1]
+    parser = argparse.ArgumentParser(description='Solve the Pants Problem.')
+    parser.add_argument('--size', type=int, default=5, help='The size of the problem set (defaults to 5)')
+    parser.add_argument('--heuristic', default='BreadthFirst', help='The heuristc class to use.')
 
-    solver = PantsSolver(initial, goal,
-        heuristic=BreadthFirstHeuristic()
-    )
+    args = parser.parse_args()
 
-    print('------ Breadth First -----------------')
-    solver.solve()
-    display(solver)
+    initial = list(range(1, args.size + 1))
+    goal = list(reversed(initial))
 
-    solver = PantsSolver(initial, goal,
-        heuristic=DistanceHeuristic(goal)
-    )
+    print('Initial state:  {}'.format(initial))
+    print('Goal state  {}:'.format(goal))
 
-    print('------ Distance Search -----------------')
-    solver.solve()
-    display(solver)
+    heuristic = getattr(heuristics, args.heuristic, None)
 
-    initial = [1, 2, 3, 4, 5, 6, 7]
-    goal = [7, 6, 5, 4, 3, 2, 1]
+    if heuristic and type(heuristic) is type:
+        print('Heuristic:  {}'.format(args.heuristic))
 
-    solver = PantsSolver(initial, goal,
-        heuristic=BreadthFirstHeuristic()
-    )
+        solver = PantsSolver(
+            initial=initial,
+            goal=goal,
+            heuristic=heuristic(goal)
+        )
 
-    print('------ Big Breadth First -----------------')
-    solver.solve()
-    display(solver)
+        solver.solve()
+        display(solver)
+    else:
+        print('ERROR:  Cannot find heuristic with name "{}"'.format(args.heuristic))
 
-    solver = PantsSolver(initial, goal,
-        heuristic=DistanceHeuristic(goal)
-    )
-
-    print('------ Big Distance Search -----------------')
-    solver.solve()
-    display(solver)
 
 if __name__ == '__main__':
     run()

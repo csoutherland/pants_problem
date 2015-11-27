@@ -21,6 +21,7 @@ class PantsSolver:
             initial (list[int]):  The initial state of the problem
             goal (list[int]):     The desired goal state of the problem
             heuristic (object):   An object that implements a 'score' method for evaluating PantsPaths
+            max_iterations (int): The maximum number of iterations to evaluate when solving the problem
         """
         self.working_set = []
         self.goal = goal
@@ -43,6 +44,12 @@ class PantsSolver:
         self.evaluated += 1
 
     def pop_best(self):
+        """
+        Pops the best (lowest score) PantsPath from the priority queue.
+
+        Returns:
+            The PantsPath from the working set with the lowest score.
+        """
         # Ignoring the score for now...
         score, path = heappop(self.working_set)
 
@@ -50,19 +57,42 @@ class PantsSolver:
 
     @property
     def solved(self):
+        """
+        Is there a solution for the current problem?
+
+        Returns:
+            True if a solution has been found, False otherwise
+        """
         return self.solution is not None
 
     def iterate(self):
+        """
+        Performs a single cycle of the solution algorithm.
+
+        The algorithm is as follows:
+        1) Find the "best" PantsPath from the working set
+        2) Evaluate if the PantsPath results in the goal state
+        3) If not, generate child nodes representing all additional
+           valid moves, and add them to the working set
+        """
         best = self.pop_best()
 
         # TODO:  Should this be a method on PantsState?
         if best.last_state.state == self.goal:
             self.solution = best
         else:
-            for child in best.children:
-                self.add_path(child)
+            for path in best.children:
+                self.add_path(path)
 
     def solve(self):
+        """
+        Attempt to solve the pants problem.
+
+        This simply calls `iterate()` until one of two
+        conditions occur:
+        1) A solution is found
+        2) The number of calls to `iterate()` exceeds `max_iterations`
+        """
         for _ in range(self.max_iterations):
             if self.solved:
                 return

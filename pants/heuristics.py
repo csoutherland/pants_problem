@@ -1,11 +1,14 @@
 
-class BreadthFirstHeuristic:
+class BreadthFirst:
+
+    def __init__(self, goal):
+        pass
 
     def score(self, pants_path):
         return len(pants_path.states)
 
 
-class DistanceHeuristic:
+class Distance:
 
     def __init__(self, goal):
         self.goal = goal

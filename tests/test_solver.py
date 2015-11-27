@@ -21,8 +21,9 @@ class PantsSolverTest(unittest.TestCase):
         self.assertEqual(1, len(self.solver.working_set))
 
     def test_pop_best(self):
-        self.solver.pop_best()
+        best = self.solver.pop_best()
 
+        self.assertEqual(PantsPath([PantsState(0, [1, 2, 3, 4, 5])]), best)
         self.assertEqual([], self.solver.working_set)
 
     def test_next_iteration(self):
