@@ -94,4 +94,9 @@ You can specify a custom problem size and/or a different heuristic to use:
 python3 pants.py --size=7 --heuristic=Distance
 ```
 
+You can also run the unit tests:
+```
+> python3 -m unittest
+```
+
 Write your own heuristics to solve the pants problem!

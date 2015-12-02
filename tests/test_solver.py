@@ -3,7 +3,7 @@ import unittest
 from pants.state import PantsState
 from pants.path import PantsPath
 from pants.solver import PantsSolver
-from pants.heuristics import BreadthFirstHeuristic
+from pants.heuristics import BreadthFirst
 
 
 class PantsSolverTest(unittest.TestCase):
@@ -12,7 +12,7 @@ class PantsSolverTest(unittest.TestCase):
         self.solver = PantsSolver(
             initial=[1, 2, 3, 4, 5],
             goal=[5, 4, 3, 2, 1],
-            heuristic=BreadthFirstHeuristic()
+            heuristic=BreadthFirst(None)
         )
 
 
@@ -38,4 +38,3 @@ class PantsSolverTest(unittest.TestCase):
         ])
 
         self.assertEqual(expected_best, best)
-
