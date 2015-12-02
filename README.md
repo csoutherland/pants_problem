@@ -1,4 +1,4 @@
- # The Pants Problem
+# The Pants Problem
 
  Given an array of integers and a pointer:
  ```
