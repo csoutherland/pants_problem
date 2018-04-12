@@ -201,6 +201,12 @@ class Pauls(Distance) :
 
 
 class Bogo:
+    """
+    This heuristic is optimal in the best case and non-terminating in the worst
+    case (though the worst case becomes uniformly less likely over time
+    assuming high quality entropy).
+    """
+
     def __init__(self, goal):
         self.goal = goal
 
