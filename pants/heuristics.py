@@ -1,4 +1,5 @@
 from math import sqrt
+import random
 
 
 class BreadthFirst:
@@ -197,3 +198,11 @@ class Pauls(Distance) :
 
     def pointer_modifier(self, position, goal_scores) :
         return goal_scores[position]
+
+
+class Bogo:
+    def __init__(self, goal):
+        self.goal = goal
+
+    def score(self, pants_path):
+        return random.randint(1, len(self.goal))
